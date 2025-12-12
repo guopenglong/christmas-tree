@@ -85,6 +85,11 @@ function createTextTexture(text: string) {
 class ParticleSystem {
     scene: THREE.Scene;
     particles: AnimatedParticle[];
+    // Optimized: Track photos separately to easily find them
+    photoParticles: AnimatedParticle[];
+    // Track the currently active photo for Focus mode
+    currentFocusPhoto: AnimatedParticle | null = null;
+    
     mainGroup: THREE.Group;
     matGold: THREE.MeshStandardMaterial;
     matGreen: THREE.MeshStandardMaterial;
@@ -99,6 +104,7 @@ class ParticleSystem {
     constructor(scene: THREE.Scene) {
         this.scene = scene;
         this.particles = [];
+        this.photoParticles = [];
         this.mainGroup = new THREE.Group();
         this.scene.add(this.mainGroup);
         
@@ -185,11 +191,21 @@ class ParticleSystem {
         const count = CONFIG.particleCount; // approximation for spiral calculation
         const p = new AnimatedParticle(mesh, idx, count, 'PHOTO');
         this.particles.push(p);
+        this.photoParticles.push(p); // Add to specific tracker
         this.mainGroup.add(mesh);
+
+        // Automatically set the newest uploaded photo as the current focus
+        this.currentFocusPhoto = p;
     }
 
     addPhotoToScene(t: THREE.Texture) {
         this.addPhoto(t);
+    }
+
+    pickRandomPhoto() {
+        if (this.photoParticles.length === 0) return;
+        const idx = Math.floor(Math.random() * this.photoParticles.length);
+        this.currentFocusPhoto = this.photoParticles[idx];
     }
 
     update(dt: number) {
@@ -210,8 +226,14 @@ class ParticleSystem {
         // Pick a target photo for FOCUS mode
         let focusTarget: AnimatedParticle | null = null;
         if (STATE.mode === MODES.FOCUS) {
-                // Find first photo or specific one
-                focusTarget = this.particles.find(p => p.type === 'PHOTO') || null;
+            // Use the currently selected photo (persists until mode change triggers a new random pick)
+            focusTarget = this.currentFocusPhoto;
+            
+            // Failsafe: if no photo selected yet, pick one
+            if (!focusTarget && this.photoParticles.length > 0) {
+                this.pickRandomPhoto();
+                focusTarget = this.currentFocusPhoto;
+            }
         }
 
         this.particles.forEach(p => p.update(dt, STATE.mode, focusTarget));
@@ -549,8 +571,13 @@ class App {
         avgDistToWrist /= 4;
 
         if (pinchDist < 0.05) {
-            if (STATE.mode !== MODES.FOCUS) console.log("Gesture: PINCH -> FOCUS");
-            STATE.mode = MODES.FOCUS;
+            if (STATE.mode !== MODES.FOCUS) {
+                console.log("Gesture: PINCH -> FOCUS");
+                // Trigger random photo selection ONLY when entering the mode
+                this.system.pickRandomPhoto();
+                STATE.mode = MODES.FOCUS;
+            }
+            // If already in FOCUS, keep the current photo stable
         } else if (avgDistToWrist < 0.25) {
             if (STATE.mode !== MODES.TREE) console.log("Gesture: FIST -> TREE");
             STATE.mode = MODES.TREE;
