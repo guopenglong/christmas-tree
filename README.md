@@ -70,8 +70,8 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/your-username/christmas-tree-ai.git
-   cd christmas-tree-ai
+   git clone https://github.com/your-username/christmas-tree.git
+   cd christmas-tree
    ```
 
 2. **安装依赖**
