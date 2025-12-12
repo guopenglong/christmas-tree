@@ -6,6 +6,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from '@mediapipe/tasks-vision';
 
+console.log("Starting Application...");
+
 // --- GLOBAL CONFIG & STATE ---
 const CONFIG = {
     particleCount: 1500,
@@ -326,11 +328,6 @@ class App {
         this.animate = this.animate.bind(this);
         this.clock = new THREE.Clock();
         this.enableCam = false;
-        
-        // Safety timeout to ensure loader disappears even if something fails
-        setTimeout(() => {
-            this.hideLoader();
-        }, 5000);
 
         this.initThree().then(() => {
             this.initUI();
@@ -554,5 +551,12 @@ class App {
     }
 }
 
-// Start
-new App();
+// Start with error handling
+try {
+    new App();
+} catch (e) {
+    console.error("Critical Start Error", e);
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = 'none';
+    alert("Application failed to start. Check console.");
+}
