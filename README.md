@@ -90,13 +90,11 @@
    npm run build
    ```
    
-## 部署一个你自己的 圣诞树 网站（免费，国内直连）
+## 🚤部署一个你自己的 圣诞树 网站（免费，国内直连）
 
 > **Warning**
 >
 > vercel.app 域名已经被墙，但 vercel 本身没有被墙，所以你绑定自己的域名就可以了。如果广泛分享，域名有被墙的风险。如果是国内购买的域名，有请去喝茶的风险，所以要么小范围加密码使用，要么在国外购买域名。更推荐小范围内使用。
-
-如果你只需要部署一个你自己用的网站，而不需要定制，那么你完全不需要在本地跑起来，你可以直接点击下面的按钮，然后按照提示操作，然后在 Vercel 中填入环境变量即可。
 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fguopenglong%2Fchristmas-tree)
