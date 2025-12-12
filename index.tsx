@@ -193,9 +193,19 @@ class ParticleSystem {
     }
 
     update(dt: number) {
-        // Smoothly rotate the entire group based on Hand Input
-        this.mainGroup.rotation.y = THREE.MathUtils.lerp(this.mainGroup.rotation.y, STATE.targetRotation.y, 0.1);
-        this.mainGroup.rotation.x = THREE.MathUtils.lerp(this.mainGroup.rotation.x, STATE.targetRotation.x, 0.1);
+        // Determine target rotation
+        // If in FOCUS mode, we FORCE rotation to 0 to ensure the photo is centered
+        let targetRotX = STATE.targetRotation.x;
+        let targetRotY = STATE.targetRotation.y;
+
+        if (STATE.mode === MODES.FOCUS) {
+            targetRotX = 0;
+            targetRotY = 0;
+        }
+
+        // Smoothly rotate the entire group
+        this.mainGroup.rotation.y = THREE.MathUtils.lerp(this.mainGroup.rotation.y, targetRotY, 0.1);
+        this.mainGroup.rotation.x = THREE.MathUtils.lerp(this.mainGroup.rotation.x, targetRotX, 0.1);
 
         // Pick a target photo for FOCUS mode
         let focusTarget: AnimatedParticle | null = null;
@@ -280,8 +290,17 @@ class AnimatedParticle {
             this.mesh.rotation.y += this.rotationSpeed.y * dt;
         } else if (mode === MODES.FOCUS) {
             if (this === focusTarget) {
-                targetPos = new THREE.Vector3(0, 2, 35); // Front of camera
-                targetScale = 4.5;
+                // Responsive adjustment for Mobile Portrait
+                const isPortrait = window.innerHeight > window.innerWidth;
+                
+                // If portrait (mobile), push it further back (smaller z-index relative to camera)
+                // and scale it down slightly to fit the narrow screen width.
+                const zPos = isPortrait ? 30 : 35; 
+                const scaleVal = isPortrait ? 2.8 : 4.5;
+
+                targetPos = new THREE.Vector3(0, 2, zPos); // Front of camera (Camera is at z=50)
+                targetScale = scaleVal;
+                
                 // Always face camera
                 this.mesh.lookAt(0, 2, 50);
             } else {
