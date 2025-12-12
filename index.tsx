@@ -1,8 +1,9 @@
+
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from '@mediapipe/tasks-vision';
 
 console.log("Starting Application...");
@@ -320,7 +321,7 @@ class App {
     renderer!: THREE.WebGLRenderer;
     composer!: EffectComposer;
     system!: ParticleSystem;
-    handLandmarker?: HandLandmarker;
+    handLandmarker?: any;
     lastVideoTime: number = -1;
 
     constructor() {
@@ -427,7 +428,7 @@ class App {
                 
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    new THREE.TextureLoader().load(ev.target?.result as string, (t) => {
+                    new THREE.TextureLoader().load(ev.target?.result as string, (t: THREE.Texture) => {
                         t.colorSpace = THREE.SRGBColorSpace; 
                         this.system.addPhotoToScene(t); // Wrapper method needed
                     });
@@ -466,7 +467,7 @@ class App {
         }
     }
 
-    processGestures(result: HandLandmarkerResult) {
+    processGestures(result: any) {
         if (!result.landmarks || result.landmarks.length === 0) {
             STATE.handPresent = false;
             // Slowly return to 0 rotation if no hand
