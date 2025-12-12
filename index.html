@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Christmas Tree | AI Spatial Experience</title>
     
     <!-- Visual Identity & Fonts -->
@@ -23,6 +23,9 @@
             background-color: var(--black);
             font-family: 'Times New Roman', serif;
             user-select: none;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            touch-action: none; /* Prevent scrolling/zooming gestures */
         }
 
         /* UI Layer */
@@ -44,7 +47,7 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: 56px;
+            font-size: clamp(32px, 8vw, 56px); /* Responsive font size */
             text-align: center;
             margin-top: 40px;
             background: linear-gradient(to bottom, #ffffff, var(--gold));
@@ -54,6 +57,8 @@
             letter-spacing: 4px;
             pointer-events: auto;
             width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 
         .controls-area {
@@ -67,6 +72,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            width: 100%;
         }
 
         .upload-wrapper input[type="file"] {
@@ -87,9 +93,10 @@
             letter-spacing: 2px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             display: inline-block;
+            border-radius: 4px;
         }
 
-        .btn-glass:hover {
+        .btn-glass:hover, .btn-glass:active {
             background: rgba(212, 175, 55, 0.2);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
@@ -99,6 +106,7 @@
             font-size: 12px;
             margin-top: 10px;
             letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         /* Loader */
@@ -178,13 +186,14 @@
                 <label for="file-input" class="btn-glass">Add Memories</label>
                 <input type="file" id="file-input" accept="image/*">
             </div>
-            <div class="hint-text">Press 'H' to Hide Controls</div>
+            <div class="hint-text">Tap screen to Toggle UI • Press 'H' to Hide</div>
         </div>
     </div>
 
     <!-- Hidden CV Elements -->
     <div class="webcam-container">
-        <video id="webcam" autoplay playsinline></video>
+        <!-- Added 'muted' which is required for autoplay on many mobile browsers -->
+        <video id="webcam" autoplay playsinline muted></video>
         <canvas id="cv-canvas" width="160" height="120"></canvas>
     </div>
 
@@ -198,7 +207,7 @@
                 loader.style.pointerEvents = 'none';
                 setTimeout(() => loader.remove(), 1000);
             }
-        }, 4000);
+        }, 5000);
     </script>
 
     <!-- App Entry -->

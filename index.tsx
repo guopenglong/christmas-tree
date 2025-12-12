@@ -318,7 +318,8 @@ class App {
     scene!: THREE.Scene;
     camera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
-    composer!: EffectComposer;
+    // Fix: Changed type to any to avoid namespace error with EffectComposer
+    composer!: any;
     system!: ParticleSystem;
     handLandmarker?: any;
     lastVideoTime: number = -1;
@@ -356,9 +357,10 @@ class App {
         this.camera.position.set(0, 2, 50);
 
         // Renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // Important: Cap pixel ratio on mobile to prevent overheating/low fps
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.toneMapping = THREE.ReinhardToneMapping;
         this.renderer.toneMappingExposure = 2.2;
         document.body.appendChild(this.renderer.domElement);
@@ -411,12 +413,24 @@ class App {
     }
 
     initUI() {
-        // H to hide
+        const toggleUI = () => {
+             document.querySelector('#ui-container')?.classList.toggle('ui-hidden');
+        };
+
+        // Keyboard 'H'
         document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'h') {
-                document.querySelector('#ui-container')?.classList.toggle('ui-hidden');
-            }
+            if (e.key.toLowerCase() === 'h') toggleUI();
         });
+
+        // Touch Interaction (Mobile)
+        document.addEventListener('touchstart', (e) => {
+             // Only toggle if not tapping a button or input
+             const target = e.target as HTMLElement;
+             if (!target.closest('.btn-glass') && !target.closest('input')) {
+                 toggleUI();
+             }
+        }, { passive: true });
+
 
         // Upload Logic
         const fileInput = document.getElementById('file-input');
@@ -453,16 +467,28 @@ class App {
 
         // Setup Webcam
         const video = document.getElementById('webcam') as HTMLVideoElement;
-        const constraints = { video: true };
+        
+        // Mobile Optimized Constraints
+        const constraints = { 
+            video: {
+                facingMode: 'user', // Prefer front camera
+                width: { ideal: 640 }, // Lower resolution for better performance on mobile
+                height: { ideal: 480 }
+            } 
+        };
         
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
             video.addEventListener('loadeddata', () => {
                 this.enableCam = true;
+                console.log("Camera started successfully");
             });
         } catch (err) {
             console.warn("Webcam access denied or unavailable", err);
+            // If automated access fails (common on some mobile browsers), 
+            // the app still runs in 'mouse/touch' visual mode, 
+            // though hand tracking won't work.
         }
     }
 
