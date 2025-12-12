@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { PMREMGenerator } from 'three/addons/pmrem/PMREMGenerator.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from '@mediapipe/tasks-vision';
 
 console.log("Starting Application...");
@@ -365,7 +364,7 @@ class App {
         document.body.appendChild(this.renderer.domElement);
 
         // Environment
-        const pmremGenerator = new PMREMGenerator(this.renderer);
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
         pmremGenerator.compileEquirectangularShader();
         const roomEnv = new RoomEnvironment();
         this.scene.environment = pmremGenerator.fromScene(roomEnv).texture;
