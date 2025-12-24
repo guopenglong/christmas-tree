@@ -1,31 +1,81 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Christmas Tree | AI Spatial Experience</title>
+    <title>Christmas Tree | Cloud Spatial Experience</title>
     
-    <!-- Visual Identity & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Times+New_Roman:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --gold: #d4af37;
             --cream: #fceea7;
-            --black: #000000;
+            --black: #050505;
+            --glass: rgba(255, 255, 255, 0.08);
         }
 
         body {
             margin: 0;
             overflow: hidden;
             background-color: var(--black);
-            font-family: 'Times New Roman', serif;
+            font-family: 'Quicksand', sans-serif;
             user-select: none;
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-            touch-action: none; /* Prevent scrolling/zooming gestures */
+            touch-action: none;
+        }
+
+        /* Login Overlay */
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+
+        #auth-overlay.hidden {
+            transform: translateY(-100%);
+        }
+
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .login-card h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 20px;
+            outline: none;
+            box-sizing: border-box;
+            text-align: center;
         }
 
         /* UI Layer */
@@ -35,30 +85,37 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Let clicks pass to canvas if needed */
+            pointer-events: none;
             z-index: 10;
             transition: opacity 0.5s ease;
         }
 
-        .ui-hidden {
-            opacity: 0 !important;
-            pointer-events: none !important;
+        .ui-hidden { opacity: 0 !important; }
+
+        .cloud-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 10px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--glass);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            pointer-events: auto;
         }
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(32px, 8vw, 56px); /* Responsive font size */
+            font-size: clamp(28px, 6vw, 48px);
             text-align: center;
-            margin-top: 40px;
+            margin-top: 60px;
             background: linear-gradient(to bottom, #ffffff, var(--gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
             letter-spacing: 4px;
-            pointer-events: auto;
-            width: 100%;
-            padding: 0 20px;
-            box-sizing: border-box;
         }
 
         .controls-area {
@@ -70,147 +127,84 @@
             pointer-events: auto;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .upload-wrapper input[type="file"] {
-            display: none;
+            gap: 15px;
         }
 
         .btn-glass {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--glass);
             backdrop-filter: blur(10px);
             border: 1px solid var(--gold);
             color: var(--gold);
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-family: 'Cinzel', serif;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            border-radius: 50px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: inline-block;
-            border-radius: 4px;
         }
 
-        .btn-glass:hover, .btn-glass:active {
-            background: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-        }
-
-        .hint-text {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-            margin-top: 10px;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        .btn-glass:hover {
+            background: rgba(212, 175, 55, 0.15);
+            transform: scale(1.05);
         }
 
         /* Loader */
         #loader {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: var(--black);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: opacity 0.8s ease;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 300;
+            transition: opacity 0.8s;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(212, 175, 55, 0.1);
-            border-top: 2px solid var(--gold);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        .loader-text {
-            color: var(--gold);
-            font-family: 'Cinzel', serif;
-            font-size: 14px;
-            letter-spacing: 3px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Hidden Webcam for CV */
-        .webcam-container {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            opacity: 0; /* Invisible per spec */
-            pointer-events: none;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-        }
+        .webcam-container { opacity: 0; position: absolute; pointer-events: none; }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "three/": "https://esm.sh/three@^0.182.0/",
     "three": "https://esm.sh/three@^0.182.0",
-    "@mediapipe/tasks-vision": "https://esm.sh/@mediapipe/tasks-vision@^0.10.22-rc.20250304"
+    "three/": "https://esm.sh/three@^0.182.0/",
+    "@mediapipe/tasks-vision": "https://esm.sh/@mediapipe/tasks-vision@^0.10.22-rc.20250304",
+    "@neondatabase/serverless": "https://esm.sh/@neondatabase/serverless@^1.0.2"
   }
 }
 </script>
 </head>
 <body>
 
-    <!-- Loading Screen -->
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loader-text">LOADING HOLIDAY MAGIC</div>
+        <div style="color: var(--gold); font-family: 'Cinzel'; margin-top:20px;">WAKING THE MAGIC...</div>
     </div>
 
-    <!-- Main UI -->
-    <div id="ui-container">
-        <h1>Merry Christmas</h1>
-        
-        <div class="controls-area">
-            <div class="upload-wrapper">
-                <label for="file-input" class="btn-glass">Add Memories</label>
-                <input type="file" id="file-input" accept="image/*">
-            </div>
-            <div class="hint-text">Tap screen to Toggle UI • Press 'H' to Hide</div>
+    <!-- Auth Overlay -->
+    <div id="auth-overlay">
+        <div class="login-card">
+            <h2>Enter the Forest</h2>
+            <input type="text" id="username-input" class="login-input" placeholder="Your Name" value="Guest">
+            <button id="login-btn" class="btn-glass">Enter Cloud Sync</button>
+            <p style="color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 20px;">Your memories will be stored on Vercel Cloud</p>
         </div>
     </div>
 
-    <!-- Hidden CV Elements -->
-    <div class="webcam-container">
-        <!-- Added 'muted' which is required for autoplay on many mobile browsers -->
-        <video id="webcam" autoplay playsinline muted></video>
-        <canvas id="cv-canvas" width="160" height="120"></canvas>
+    <div id="ui-container">
+        <div id="status-bar" class="cloud-status">Cloud: Disconnected</div>
+        <h1>Merry Christmas</h1>
+        
+        <div class="controls-area">
+            <label for="file-input" class="btn-glass">Upload Memory</label>
+            <input type="file" id="file-input" accept="image/*" style="display:none">
+            <div style="color: rgba(255,255,255,0.5); font-size: 10px;">Pinch to View Random Memory</div>
+        </div>
     </div>
 
-    <!-- Safety Failsafe: Remove loader if app crashes -->
-    <script>
-        setTimeout(() => {
-            const loader = document.getElementById('loader');
-            if (loader && loader.style.opacity !== '0') {
-                console.warn("Safety timeout: Removing loader forcefully.");
-                loader.style.opacity = '0';
-                loader.style.pointerEvents = 'none';
-                setTimeout(() => loader.remove(), 1000);
-            }
-        }, 5000);
-    </script>
+    <div class="webcam-container">
+        <video id="webcam" autoplay playsinline muted></video>
+    </div>
 
-    <!-- App Entry -->
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>
